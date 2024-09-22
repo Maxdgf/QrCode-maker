@@ -1,18 +1,25 @@
 import customtkinter as ctk
 import qrcode
 import time
+import os
+from random import randint
+import platform
+import subprocess
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
-from PIL import ImageTk, Image
+from tkinter import colorchooser
          
 ctk.set_default_color_theme("green")    
 
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.title("QrCode Master")    
-        self.geometry("800x500")
+        self.geometry("800x800")
+        self.icon_path = os.path.join(os.path.dirname(__file__), 'qrCodeLogo.ico')
+        self.iconbitmap(self.icon_path)
 
         self.widgetFrame = ctk.CTkFrame(self)
         #self.widgetFrame.pack_propagate(True)
@@ -21,6 +28,9 @@ class App(ctk.CTk):
 
         self.labelName = ctk.CTkLabel(self, text="QrCode Master", text_color="#00BFFF", font=("Arial", 50))
         self.labelName.pack()
+
+        self.description = ctk.CTkLabel(self.widgetFrame, text="Make your custom QR code", text_color="#1E90FF")
+        self.description.pack(anchor="center")
 
         self.switchVar = ctk.StringVar(value="off")
         self.switchTheme = ctk.CTkSwitch(self, text="dark/light theme", fg_color="#1E90FF", command=self.switch_theme, variable=self.switchVar, onvalue="on", offvalue="off")
@@ -45,7 +55,51 @@ class App(ctk.CTk):
         self.pathLabael.pack(side="left")
         self.btnSelectPath = ctk.CTkButton(self.filePathFrame, text="select", fg_color="#1E90FF", hover_color="#00BFFF", command=self.open_filedialog)
         self.btnSelectPath.pack(side="left")
-        self.filePathFrame.pack(pady=30)
+        self.filePathFrame.pack(pady=10)
+
+        self.sizeFrame = ctk.CTkFrame(self.widgetFrame)
+        self.sizeLabeldescription = ctk.CTkLabel(self.sizeFrame, text="qrcode size: ", text_color="#00BFFF", font=("Arial", 15))
+        self.sizeLabeldescription.pack(side="left")
+        self.slider = ctk.CTkSlider(self.sizeFrame, from_=0, to=50, orientation="horizontal",  button_color="#1E90FF", button_hover_color="#00BBFB", command=self.slider_event)
+        self.slider.pack(side="left")
+        self.slider.set(10)
+        self.slValue = self.slider.get()
+        self.sizeLabel = ctk.CTkLabel(self.sizeFrame, text="0/50")
+        self.sizeLabel.pack(side="left")
+        self.sizeFrame.pack(pady=10)
+        int(self.slValue)
+        self.sizeLabel.configure(text=f"{self.slValue}/50")
+
+        self.borderFrame = ctk.CTkFrame(self.widgetFrame)
+        self.borderLabeldescription = ctk.CTkLabel(self.borderFrame, text="qrcode border: ", text_color="#00BFFF", font=("Arial", 15))
+        self.borderLabeldescription.pack(side="left")
+        self.slider2 = ctk.CTkSlider(self.borderFrame, from_=0, to=50, orientation="horizontal", button_color="#1E90FF", button_hover_color="#00BBFB", command=self.slider_event2)
+        self.slider2.pack(side="left")
+        self.slider2.set(5)
+        self.slValue2 = self.slider2.get()
+        self.borderLabel = ctk.CTkLabel(self.borderFrame, text="0/50")
+        self.borderLabel.pack(side="left")
+        self.borderFrame.pack(pady=10)
+        int(self.slValue2)
+        self.borderLabel.configure(text=f"{self.slValue2}/50")
+
+        self.fillcFrame = ctk.CTkFrame(self.widgetFrame)
+        self.descLabel = ctk.CTkLabel(self.fillcFrame, text="fill color: not selected", text_color="#00BFFF", font=("Arial", 15))
+        self.descLabel.pack(side="left")
+        self.colorLabel = ctk.CTkLabel(self.fillcFrame, width=80, bg_color="white", text="")
+        self.colorLabel.pack(side="left")
+        self.btnSelectColor = ctk.CTkButton(self.fillcFrame, text="select", fg_color="#1E90FF", hover_color="#00BFFF", command=self.fill_colorEvent)
+        self.btnSelectColor.pack(side="left")
+        self.fillcFrame.pack(pady=10)
+        
+        self.backcFrame = ctk.CTkFrame(self.widgetFrame)
+        self.descLabel2 = ctk.CTkLabel(self.backcFrame, text="back color: not selcted", text_color="#00BFFF", font=("Arial", 15))
+        self.descLabel2.pack(side="left")
+        self.colorLabel2 = ctk.CTkLabel(self.backcFrame, width=80, bg_color="white", text="")
+        self.colorLabel2.pack(side="left")
+        self.btnSelectColor2 = ctk.CTkButton(self.backcFrame, text="select", fg_color="#1E90FF", hover_color="#00BFFF", command=self.back_colorEvent)
+        self.btnSelectColor2.pack(side="left")
+        self.backcFrame.pack(pady=10)
 
         self.filenameString = ctk.CTkEntry(self.widgetFrame, width=500, placeholder_text="enter filename", border_color="#00BBFB", border_width=3)
         self.filenameString.pack()
@@ -62,6 +116,29 @@ class App(ctk.CTk):
         self.btnStart.pack(pady=10)
 
         self.widgetFrame.pack(expand=True)
+
+    def fill_colorEvent(self):
+        self.fillcolor = colorchooser.askcolor(title="choose fill color")
+        if self.fillcolor[1] is not None:
+            self.colorLabel.configure(fg_color=self.fillcolor[1], text=self.fillcolor, text_color="black")
+            self.descLabel.configure(text="fill color: selected")
+
+    def back_colorEvent(self):
+        self.backcolor = colorchooser.askcolor(title="choose back color")
+        if self.backcolor[1] is not None:
+            self.colorLabel2.configure(fg_color=self.backcolor[1], text=self.backcolor, text_color="black")
+            self.descLabel2.configure(text="back color: selected")
+
+
+    def slider_event(self, value):
+        self.num = int(value)
+        self.sizeLabel.configure(text=f"{self.num}/50")
+        #print(value)
+
+    def slider_event2(self, value):
+        self.num2 = int(value)
+        self.borderLabel.configure(text=f"{self.num2}/50")
+        #print(value)
 
     def switch_theme(self):
         #print("value:" + self.switchVar.get())
@@ -88,15 +165,29 @@ class App(ctk.CTk):
         self.link = self.NameString.get()
         self.format = self.FormatBox.get()
         self.name = self.filenameString.get()
-        self.img = qrcode.make(self.link)
+        if len(self.name) == 0:
+            self.name = f"untitled{randint(0, 1000)}"
+        self.size = self.slider.get()
+        self.border = self.slider2.get()
+        self.qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=int(self.size), border=int(self.border))
+        self.qr.add_data(self.link)
+        self.qr.make(fit=True)
         self.progressBar.set(0.5)
         self.progressIndekator.configure(text="50%")
         try:
             self.progressBar.set(1)
             self.progressIndekator.configure(text="100%")
-            type(self.img)
+            self.img = self.qr.make_image(fill_color=self.fillcolor[1], back_color=self.backcolor[1])
             self.img.save(self.file_path + f"/{self.name}{self.format}")
             messagebox.showinfo("Info", f"QrCode was created and saved!\nfile path: {self.file_path}/{self.name}{self.format}")
+            self.path_to_file = os.path.join(self.file_path, f"{self.name}{self.format}")
+            #os.startfile(self.path_to_file)
+            if platform.system() == "Windows":
+                os.startfile(self.path_to_file)
+            elif platform.system() == "Darwin":
+                subprocess.run(["open", self.path_to_file])
+            else:
+                subprocess.run(["xdg-open", self.path_to_file])
             time.sleep(2)
             self.progressBar.set(0)
             self.progressIndekator.configure(text="0%")
@@ -104,11 +195,11 @@ class App(ctk.CTk):
             self.progressBar.stop()
             self.progressBar.set(0)
             self.progressIndekator.configure(text="0%")
-            messagebox.showerror("Error", "A QrCode creation error, please check all the settings and try again.")
+            messagebox.showerror("Error", "A QrCode creation error, please check all the \nsettings(url, file format, file name, file path and other parametrs) and try again.")
 
     def paste_text(self):
         self.text = self.clipboard_get()
-        self.NameString.insert("end", "text")
+        self.NameString.insert("end", self.text)
              
 if __name__ == "__main__":
     app = App()
