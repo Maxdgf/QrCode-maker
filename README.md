@@ -1,7 +1,9 @@
 # QrCode-maker
 QrCode maker app on customtkinter and qrcode
 
-![](screenView.png)
+![](screen1.png)
+
+![](screen2.png)
 
 <h2>Requirements:</h2>
 
