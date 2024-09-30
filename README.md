@@ -13,5 +13,3 @@ QrCode maker app on customtkinter and qrcode
 ##
     pip install qrcode
 
-##
-    pip install pillow
