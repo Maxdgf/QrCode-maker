@@ -1,0 +1,1 @@
+Upgraded project version with the ability to add images to qr code.
